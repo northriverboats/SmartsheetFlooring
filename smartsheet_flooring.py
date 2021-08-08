@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 
-import smartsheet
-import logging
-
+import click
 import glob
-import time
-import os
-import subprocess
+import logging
 import openpyxl
+import os
+import smartsheet
+import subprocess
+import sys
+import time
+from emailer import *
 from openpyxl.drawing.image import Image
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
-from emailer import *
 
 api = os.getenv('SMARTSHEET_API')
 source_dir = os.getenv('SOURCE_DIR')
@@ -34,6 +35,15 @@ def log(text, error=None):
     log_text += text + "\n"
     if (error):
         errors = True
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 def mail_results(subject, body):
     mFrom = os.getenv('MAIL_FROM')
@@ -142,14 +152,51 @@ def send_error_report():
     mail_results(subject, log_text)
 
 
-def main():
+@click.command()
+@click.option(
+    '--list',
+    '-l',
+    'list_',
+    is_flag=True,
+    help='Print list of dealers'
+)
+@click.option(
+    '--dealer',
+    '-d',
+    multiple=True,
+    help='Dealer to include (can use multiple times)'
+)
+@click.option(
+    '--ignore',
+    '-i',
+    multiple=True,
+    help='Dealer to ignore (can use multiple times)'
+)
+@click.option(
+    '--download/--no-download',
+    default=True,
+    help='Download spreedsheets unless --no-download'
+)
+@click.option(
+    '--excel/--no-excel',
+    default=True,
+    help='Create Excel Sheets unless --no-excel'
+)
+def main(list_, dealer, ignore, download, excel):
+    # load environmental variables
+    env_path = resource_path('.env')
+    load_dotenv(dotenv_path=env_path)
+
     try:
-        download_sheets()
-        process_sheets()
+        if download:
+            download_sheets()
+        if excel:
+            process_sheets()
     except Exception as e:
         log('Uncaught Error in main(): ' + str(e), True)
     if (errors):
         send_error_report()
+    sys.exit(0)
 
 
 if __name__ == "__main__":

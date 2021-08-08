@@ -42,7 +42,7 @@ def mail_results(subject, body):
     m.setFrom(mFrom)
     m.addRecipient(mTo)
     m.addCC(os.getenv('MAIL_ALSO'))
-   
+
     m.setSubject(subject)
     m.setTextBody("You should not see this text in a MIME aware reader")
     m.setHtmlBody('<pre>\n' + body + '</pre>\n')

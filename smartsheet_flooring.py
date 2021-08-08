@@ -9,13 +9,11 @@ import smartsheet
 import subprocess
 import sys
 import time
+from dotenv import load_dotenv
 from emailer import *
 from openpyxl.drawing.image import Image
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
-
-api = os.getenv('SMARTSHEET_API')
-source_dir = os.getenv('SOURCE_DIR')
-target_dir = os.getenv('TARGET_DIR')
+from pprint import pprint
 
 reports = [
     {'id': 7487692708571012, 'name': 'Boat Country Flooring'},
@@ -187,6 +185,30 @@ def main(list_, dealer, ignore, download, excel):
     env_path = resource_path('.env')
     load_dotenv(dotenv_path=env_path)
 
+    api = os.getenv('SMARTSHEET_API')
+    source_dir = os.getenv('SOURCE_DIR')
+    target_dir = os.getenv('TARGET_DIR')
+
+    if list_:
+        for report in reports:
+            print("'" + report['name'][:-9].strip() + "'")
+        sys.exit(0)
+
+    pprint(dealer)
+    print('--')
+    pprint(ignore)
+    # Add dealers we want to report on
+    if dealer:
+        dealers = [r for r in reports if r['name'][:-9] in dealer]
+    else:
+        dealers = reports[:]
+
+    # Delete dealers we are not intested in
+    if ignore:
+        dealers = [d for d in dealers if d['name'][:-9].strip() not in ignore]
+    pprint(dealers)
+    sys.exit(0)
+    # actual processing
     try:
         if download:
             download_sheets()

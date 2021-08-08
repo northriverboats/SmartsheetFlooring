@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from emailer import *
 from openpyxl.drawing.image import Image
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
-from pprint import pprint
+
 
 reports = [
     {'id': 7487692708571012, 'name': 'Boat Country Flooring'},
@@ -95,7 +95,7 @@ def process_rows(wsOld,wsNew):
 
     # set_footer(wsNew, wsOld.max_row+1)
 
-def process_sheet_to_xlsx(file):
+def process_sheet_to_xlsx(source_dir, target_dir, file):
     # change variables here
     input_name = source_dir + 'downloads/' + file
     output_name = target_dir + file
@@ -121,15 +121,15 @@ def process_sheet_to_xlsx(file):
         log('             FAILED TO CREATE XLSX: ' + str(e), True)
 
 
-def process_sheets():
+def process_sheets(source_dir, target_dir):
     log("\nPROCESS SHEETS ===============================")
     os.chdir(source_dir + 'downloads/')
     for file in sorted(glob.glob('*.xlsx')):
         log("  converting %s" % (file))
-        process_sheet_to_xlsx(file)
+        process_sheet_to_xlsx(source_dir, target_dir, file)
 
 
-def download_sheets():
+def download_sheets(api, source_dir):
     files = os.listdir(source_dir + 'downloads')
     for file in files:
         os.remove(os.path.join(source_dir + 'downloads', file))
@@ -194,9 +194,6 @@ def main(list_, dealer, ignore, download, excel):
             print("'" + report['name'][:-9].strip() + "'")
         sys.exit(0)
 
-    pprint(dealer)
-    print('--')
-    pprint(ignore)
     # Add dealers we want to report on
     if dealer:
         dealers = [r for r in reports if r['name'][:-9] in dealer]
@@ -206,14 +203,13 @@ def main(list_, dealer, ignore, download, excel):
     # Delete dealers we are not intested in
     if ignore:
         dealers = [d for d in dealers if d['name'][:-9].strip() not in ignore]
-    pprint(dealers)
-    sys.exit(0)
+
     # actual processing
     try:
         if download:
-            download_sheets()
+            download_sheets(api, source_dir)
         if excel:
-            process_sheets()
+            process_sheets(source_dir, target_dir)
     except Exception as e:
         log('Uncaught Error in main(): ' + str(e), True)
     if (errors):

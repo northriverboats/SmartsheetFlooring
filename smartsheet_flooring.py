@@ -185,9 +185,15 @@ def main(list_, dealer, ignore, download, excel):
     env_path = resource_path('.env')
     load_dotenv(dotenv_path=env_path)
 
+
     api = os.getenv('SMARTSHEET_API')
-    source_dir = os.getenv('SOURCE_DIR')
+    source_dir = resource_path(os.getenv('SOURCE_DIR'))
     target_dir = os.getenv('TARGET_DIR')
+
+    try:
+        os.mkdir(source_dir + 'downloads')
+    except OSError:
+        pass
 
     if list_:
         for report in reports:

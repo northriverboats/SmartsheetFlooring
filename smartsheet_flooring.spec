@@ -11,10 +11,7 @@ a = Analysis(['smartsheet_flooring.py'],
                  ('templates','templates'),
                  ('templates/downloads','templates/downloads'),
              ],
-             hiddenimports=[
-                 'smartsheet.reports',
-                 'emailer.emailer'
-             ],
+             hiddenimports=['smartsheet.reports','emailer.emailer'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],

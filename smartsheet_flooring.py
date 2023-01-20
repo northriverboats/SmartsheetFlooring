@@ -10,7 +10,7 @@ import subprocess
 import sys
 import time
 from dotenv import load_dotenv
-from emailer import *
+from emailer import mail_results
 from openpyxl.drawing.image import Image
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
 
@@ -42,19 +42,6 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
-
-def mail_results(subject, body):
-    mFrom = os.getenv('MAIL_FROM')
-    mTo = os.getenv('MAIL_TO')
-    m = Email(os.getenv('MAIL_SERVER'))
-    m.setFrom(mFrom)
-    m.addRecipient(mTo)
-    m.addCC(os.getenv('MAIL_ALSO'))
-
-    m.setSubject(subject)
-    m.setTextBody("You should not see this text in a MIME aware reader")
-    m.setHtmlBody('<pre>\n' + body + '</pre>\n')
-    m.send()
 
 
 def fetch_value(cell):
